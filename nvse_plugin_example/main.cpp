@@ -4,6 +4,15 @@
 
 IDebugLog		gLog("ShortCircuit.log");
 
+void MessageHandler(NVSEMessagingInterface::Message* msg)
+{
+	if (msg->type == NVSEMessagingInterface::kMessage_ClearScriptDataCache)
+	{
+		kEvaluator::TokenListMap::MarkForClear();
+	}
+}
+
+
 bool NVSEPlugin_Query(const NVSEInterface* nvse, PluginInfo* info)
 {
 	_MESSAGE("query");
