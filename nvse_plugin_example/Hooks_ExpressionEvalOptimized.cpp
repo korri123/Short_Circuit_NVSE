@@ -134,7 +134,7 @@ bool ParseBytecode(kEvaluator::TokenList& tokenList, Expression::Expression* exp
 				// auto* scriptDataSubset = new char[numBytesParsed];
 				// std::memcpy(scriptDataSubset, tokenStringBuf, numBytesParsed);
 				const auto offset = exprSubsetPtr - exprSubset - numBytesParsed;
-				tokenList.tokens.Append(static_cast<UInt32>(scriptData - script->data + offset));
+				tokenList.tokens.Append(static_cast<UInt32>(scriptData - static_cast<UInt8*>(script->data) + offset));
 			}
 		}
 		else // operator

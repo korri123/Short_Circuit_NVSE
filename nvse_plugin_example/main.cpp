@@ -3,6 +3,7 @@
 #include "Hooks_ExpressionEvalOptimized.h"
 
 IDebugLog		gLog("ShortCircuit.log");
+PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
 
 void MessageHandler(NVSEMessagingInterface::Message* msg)
 {
@@ -32,6 +33,11 @@ bool NVSEPlugin_Load(const NVSEInterface* nvse)
 {
 	if (nvse->isEditor)
 		return true;
+
+	g_pluginHandle = nvse->GetPluginHandle();
+	auto* messagingInterface = static_cast<NVSEMessagingInterface*>(nvse->QueryInterface(kInterface_Messaging));
+	messagingInterface->RegisterListener(g_pluginHandle, "NVSE", MessageHandler);
+
 
 	Hook_Evaluator();
 	return true;
