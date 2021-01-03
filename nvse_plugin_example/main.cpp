@@ -19,7 +19,7 @@ bool NVSEPlugin_Query(const NVSEInterface* nvse, PluginInfo* info)
 	_MESSAGE("query");
 
 	info->infoVersion = PluginInfo::kInfoVersion;
-	info->name = "ShortCircuit";
+	info->name = "short_circuit";
 	info->version = 1;
 	if (nvse->nvseVersion < NVSE_VERSION_INTEGER)
 	{
