@@ -59,9 +59,8 @@
     <ClCompile Include="..\nvse\nvse\utility.cpp">
       <Filter>nvse</Filter>
     </ClCompile>
-    <ClCompile Include="..\nvse\nvse\printf.cpp">
-      <Filter>nvse</Filter>
-    </ClCompile>
+    <ClCompile Include="..\nvse\nvse\printf.cpp" />
+    <ClCompile Include="Hooks_ExpressionEvalOptimized.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\nvse\nvse\GameAPI.h">
@@ -115,6 +114,7 @@
     <ClInclude Include="..\nvse\nvse\utility.h">
       <Filter>nvse</Filter>
     </ClInclude>
+    <ClInclude Include="Hooks_ExpressionEvalOptimized.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />
