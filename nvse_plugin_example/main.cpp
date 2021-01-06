@@ -26,18 +26,16 @@ bool NVSEPlugin_Query(const NVSEInterface* nvse, PluginInfo* info)
 		_ERROR("NVSE version too old (got %08X expected at least %08X)", nvse->nvseVersion, NVSE_VERSION_INTEGER);
 		return false;
 	}
+	if (nvse->isEditor)
+		return false;
 	return true;
 }
 
 bool NVSEPlugin_Load(const NVSEInterface* nvse)
 {
-	if (nvse->isEditor)
-		return true;
-
 	g_pluginHandle = nvse->GetPluginHandle();
 	auto* messagingInterface = static_cast<NVSEMessagingInterface*>(nvse->QueryInterface(kInterface_Messaging));
 	messagingInterface->RegisterListener(g_pluginHandle, "NVSE", MessageHandler);
-
 
 	Hook_Evaluator();
 	return true;

@@ -115,6 +115,9 @@
       <Filter>nvse</Filter>
     </ClInclude>
     <ClInclude Include="Hooks_ExpressionEvalOptimized.h" />
+    <ClInclude Include="..\nvse\nvse\GameScript.h">
+      <Filter>nvse</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />

@@ -114,6 +114,9 @@ public:
 	UInt8			pad055[3];
 #endif
 
+	tList<VariableInfo>* GetVars();
+	tList<RefVariable>* GetRefList();
+	
 	RefVariable *	GetVariable(UInt32 reqIdx);
 	VariableInfo*	GetVariableInfo(UInt32 idx);
 

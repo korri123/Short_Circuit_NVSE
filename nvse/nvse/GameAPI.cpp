@@ -881,6 +881,11 @@ UInt32 ScriptEventList::ResetAllVariables()
 	return numVars;
 }
 
+tList<ScriptEventList::Var>* ScriptEventList::GetVars() const
+{
+	return reinterpret_cast<tList<Var>*>(m_vars);
+}
+
 ScriptEventList::Var * ScriptEventList::GetVariable(UInt32 id)
 {
 	for(VarEntry * entry = m_vars; entry; entry = entry->next)

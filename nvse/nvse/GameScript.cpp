@@ -298,6 +298,16 @@ VariableInfo* Script::GetVariableByName(const char* varName)
 		return NULL;
 }
 
+tList<VariableInfo>* Script::GetVars()
+{
+	return reinterpret_cast<tList<VariableInfo>*>(&this->varList);
+}
+
+tList<Script::RefVariable>* Script::GetRefList()
+{
+	return reinterpret_cast<tList<RefVariable>*>(&this->refList);
+}
+
 Script::RefVariable	* Script::GetVariable(UInt32 reqIdx)
 {
 	UInt32	idx = 1;	// yes, really starts at 1

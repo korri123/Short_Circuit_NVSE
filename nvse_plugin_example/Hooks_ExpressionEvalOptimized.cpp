@@ -4,6 +4,7 @@
 #include "GameObjects.h"
 #include "SafeWrite.h"
 #include "GameScript.h"
+#include "GameAPI.h"
 
 namespace GameFunctions
 {
@@ -194,6 +195,8 @@ double OperatorEvaluate(Expression::ScriptOperator opType, double lh, double rh,
 
 void ShortCircuit(FastStack<kEvaluator::Token*>& operands, Vector<kEvaluator::Token>::Iterator& iter)
 {
+	if (operands.Empty())
+		return;
 	auto* lastToken = operands.Top();
 	const auto type = lastToken->shortCircuitParentType;
 	if (type == Expression::kOp_MAX)
@@ -224,10 +227,16 @@ void CleanUpStack(FastStack<kEvaluator::Token*>& stack)
 	}
 }
 
+UInt32 GetOpcodeOffset(Script* script, UInt8* scriptData)
+{
+	return scriptData - static_cast<UInt8*>(script->data);
+}
+
 double __fastcall Hook_Expression_Eval(Expression::Expression* expr, UInt32 EDX, UInt8* scriptData, TESObjectREFR* ref, TESObjectREFR* containingObj, Script* scriptObj, ScriptEventList* eventList, std::size_t numChars, bool aFalse)
 {
 	if (numChars > 512)
 	{
+		Console_Print("FAILED TO PARSE BYTECODE - Script %X Offset %x", scriptObj->refID, GetOpcodeOffset(scriptObj, scriptData));
 		expr->lastErrorID = Expression::kScriptError_OutOfMemory;
 		return 0.0;
 	}
@@ -235,11 +244,38 @@ double __fastcall Hook_Expression_Eval(Expression::Expression* expr, UInt32 EDX,
 	if (tokenList.tokens.Empty())
 	{
 		if (!ParseBytecode(tokenList, expr, scriptData, numChars, scriptObj))
+		{
+			Console_Print("FAILED TO PARSE BYTECODE - Script %X Offset %x", scriptObj->refID, GetOpcodeOffset(scriptObj, scriptData));
 			// error, expression::lastError contains error code
 			return 0.0;
+		}
 	}
 
 	FastStack<kEvaluator::Token*> stack;
+
+#if 0
+	if (scriptObj->refID == 0x0D018DC0)
+	{
+		OutputDebugString(FormatString("eventList length %d\n", eventList->GetVars()->Count()).c_str());
+		for (auto var = eventList->GetVars()->Begin(); !var.End(); var.Next())
+		{
+			auto* varInfo = scriptObj->GetVariableInfo(var->id);
+			OutputDebugString(FormatString("event list var idx:%d %s -> %X %g\n", var->id, varInfo ? varInfo->name.CStr() : "NULL", var->data, var->data).c_str());
+		}
+		OutputDebugString(FormatString("info varSize %d real varSize %d\n", scriptObj->info.varCount, scriptObj->GetVars()->Count()).c_str());
+		for (auto varInfo = scriptObj->GetVars()->Begin(); !varInfo.End(); varInfo.Next())
+		{
+			OutputDebugString(FormatString("variable %s idx: %d\n", varInfo->name.CStr(), varInfo->idx).c_str());
+		}
+		OutputDebugString(FormatString("info refSize %d real refSize %d\n", scriptObj->info.numRefs, scriptObj->GetRefList()->Count()).c_str());
+		for (auto refInfo = scriptObj->GetRefList()->Begin(); !refInfo.End(); refInfo.Next())
+		{
+			OutputDebugString(FormatString("reference %s varIdx: %d formId: %X \n", refInfo->name.CStr(), refInfo->varIdx, refInfo->form ? refInfo->form->refID : 0).c_str());
+		}
+		DebugBreak();
+
+	}
+#endif
 	for (auto iter = tokenList.tokens.Begin(); !iter.End() && expr->lastErrorID == 0; ++iter)
 	{
 		auto& token = iter.Get();
@@ -262,6 +298,7 @@ double __fastcall Hook_Expression_Eval(Expression::Expression* expr, UInt32 EDX,
 			}
 			else
 			{
+				Console_Print("SYNTAX ERROR Script %X Offset %x", scriptObj->refID, GetOpcodeOffset(scriptObj, scriptData));
 				expr->lastErrorID = Expression::kScriptError_Syntax;
 			}
 			break;
@@ -279,6 +316,7 @@ double __fastcall Hook_Expression_Eval(Expression::Expression* expr, UInt32 EDX,
 			}
 			else if (stack.Size() < 2)
 			{
+				Console_Print("STACK WAS UNDER 2 - Script %X Offset %x", scriptObj->refID, GetOpcodeOffset(scriptObj, scriptData));
 				expr->lastErrorID = Expression::kScriptError_StackUnderflow;
 			}
 			else
@@ -310,11 +348,13 @@ double __fastcall Hook_Expression_Eval(Expression::Expression* expr, UInt32 EDX,
 	}
 	if (expr->lastErrorID)
 	{
+		Console_Print("ERROR %d - Script %X Offset %x", expr->lastErrorID, scriptObj->refID, GetOpcodeOffset(scriptObj, scriptData));
 		CleanUpStack(stack);
 		return 0.0;
 	}
 	if (stack.Size() != 1)
 	{
+		Console_Print("STACK WAS NOT SIZE 1 - Script %X Offset %x", scriptObj->refID, GetOpcodeOffset(scriptObj, scriptData));
 		expr->lastErrorID = Expression::kScriptError_Syntax;
 		CleanUpStack(stack);
 		return 0.0;

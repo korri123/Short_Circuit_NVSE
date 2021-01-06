@@ -645,6 +645,18 @@ const char* GetModName(Script* script)
 	}
 	return modName;
 }
+
+std::string FormatString(const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+
+	char msg[0x400];
+	vsprintf_s(msg, 0x400, fmt, args);
+	return msg;
+}
+
+
 #if NVSE_CORE
 void ShowRuntimeError(Script* script, const char* fmt, ...)
 {

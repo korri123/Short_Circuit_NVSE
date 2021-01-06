@@ -193,6 +193,8 @@ struct ScriptEventList
 	Var *	GetVariable(UInt32 id);
 	UInt32	ResetAllVariables();
 
+	tList<Var>* GetVars() const;
+
 	void	Destructor();
 };
 
